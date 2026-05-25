@@ -634,7 +634,7 @@ class GameModel {
 
     private void buildBoard() {
         board.add(BoardSpace.start("Start"));
-        board.add(BoardSpace.property("Maple Avenue", 120, 30, new Color(231, 205, 171)));
+        board.add(BoardSpace.property("CS classroom", 120, 30, new Color(202, 200, 195)));
         board.add(BoardSpace.bonus("Allowance Deposit", 80));
         board.add(BoardSpace.property("Hockey Lane", 140, 35, new Color(196, 222, 244)));
         board.add(BoardSpace.tax("Phone Bill", 50));
@@ -782,9 +782,9 @@ class GameModel {
             payBank(player, 70, "a broken phone screen");
         } else if (eventNumber == 2) {
             player.getDebitCard().deposit(110);
-            addLog(player.getName() + " finished a CS12 project and gained 110 smollars.");
+            addLog(player.getName() + " finished a school project and gained 110 smollars.");
         } else if (eventNumber == 3) {
-            payBank(player, 45, "snacks for the group");
+            payBank(player, 45, "snacks for the class");
         } else if (eventNumber == 4) {
             player.getDebitCard().deposit(60);
             addLog(player.getName() + " sold an old textbook and gained 60 smollars.");
