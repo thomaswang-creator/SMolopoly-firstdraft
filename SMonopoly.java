@@ -165,7 +165,7 @@ class SetupPanel extends JPanel {
         playerCountBox.addActionListener(event -> updateNameFields());
         startButton.addActionListener(event -> startGame());
         updateNameFields();
-    }
+    }c
 
     private void updateNameFields() {
         int playerCount = (Integer) playerCountBox.getSelectedItem();
