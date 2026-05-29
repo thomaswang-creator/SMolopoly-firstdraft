@@ -28,11 +28,13 @@ public class Monopoly{
         String name;
         int money;
         int position;
+        boolean hasJailPass;
 
         public Player(String name) {
             this.name = name;
             this.money = 1500;
             this.position = 0;
+            this.hasJailPass = false;
         }
 
         public boolean isBankrupt() {
@@ -54,6 +56,7 @@ public class Monopoly{
 
         while (!player1.isBankrupt() && !player2.isBankrupt()) {
             Player current = (turn % 2 == 0) ? player1 : player2;
+            Player other = (turn % 2 == 0) ? player2 : player1;
 
             System.out.println("\n" + current.name + "'s turn");
             System.out.println("Money: $" + current.money);
@@ -64,7 +67,7 @@ public class Monopoly{
             System.out.println("Rolled: " + roll);
 
             movePlayer(current, roll);
-            handleTile(current);
+            handleTile(current, other);
 
             turn++;
         }
@@ -109,9 +112,38 @@ public class Monopoly{
         board[29] = new Property("Howard Cafe", "Orange", "Estate", 400, 50);
         }
     
-    static void LostAndFound(){
+    static void LostAndFound(Player player, Player other) {
+        System.out.println(player.name + "You are at the Lost and Found!");
 
-        
+        int event = random.nextInt(4);
+        switch (event) {
+            case 0:
+                int amount0 = 100 + random.nextInt(201);
+                player.money += amount0;
+                System.out.println("A bank gift: you receive $" + amount0 + "!");
+                break;
+            case 1:
+                int takeAmount = 50;
+                int paid = Math.min(takeAmount, other.money);
+                other.money -= paid;
+                player.money += paid;
+                System.out.println("You took $" + paid + " from " + other.name + "!");
+                if (paid < takeAmount) {
+                    System.out.println(other.name + " only had $" + paid + " to give.");
+                }
+                break;
+            case 2:
+                int amount2 = 150;
+                player.money += amount2;
+                System.out.println("You found a bonus from the bank: +$" + amount2 + "!");
+                break;
+            case 3:
+                player.hasJailPass = true;
+                System.out.println("You found a Get Out of Jail Free pass! Keep it until you need it.");
+                break;
+        }
+
+        System.out.println(player.name + " now has $" + player.money + ".");
     }
 
     static int rollDice() {
@@ -131,8 +163,13 @@ public class Monopoly{
                 board[player.position].name);
     }
 
-    static void handleTile(Player player) {
+    static void handleTile(Player player, Player other) {
         Property property = board[player.position];
+
+        if (property.name.equals("Lost and Found")) {
+            LostAndFound(player, other);
+            return;
+        }
 
         if (property.owner == null && property.type.equals("Estate")) {
             System.out.println("Unowned property.");
@@ -140,7 +177,7 @@ public class Monopoly{
 
             String choice = scanner.nextLine();
 
-            if (choice.equalsIgnoreCase("y") && property.type.equals("Estate")) {
+            if (choice.equalsIgnoreCase("y")) {
                 if (player.money >= property.price) {
                     player.money -= property.price;
                     property.owner = player;
@@ -156,7 +193,7 @@ public class Monopoly{
 
             player.money -= rent;
             property.owner.money += rent;
-        } else if (property.owner == player) { 
+        } else if (property.owner == player) {
             System.out.println("You own this property.");
         } else {
             System.out.println("No action on this tile.");
