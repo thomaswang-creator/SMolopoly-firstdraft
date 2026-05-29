@@ -7,12 +7,16 @@ public class Monopoly{
     // Property class
     static class Property {
         String name;
+        String color;
+        String type;
         int price;
         int rent;
         Player owner;
 
-        public Property(String name, int price, int rent) {
+        public Property(String name, String color, String type,int price, int rent) {
             this.name = name;
+            this.color = color;
+            this.type = type;
             this.price = price;
             this.rent = rent;
             this.owner = null;
@@ -36,7 +40,7 @@ public class Monopoly{
         }
     }
 
-    static Property[] board = new Property[20];
+    static Property[] board = new Property[30];
 
     public static void main(String[] args) {
         setupBoard();
@@ -73,17 +77,42 @@ public class Monopoly{
     }
 
     static void setupBoard() {
-        for (int i = 0; i < board.length; i++) {
-            board[i] = new Property(
-                "Property " + i,
-                100 + i * 20,
-                20 + i * 5
-            );
+        board[0] = new Property("GO", "White", "Special", 0, 0);
+        board[1] = new Property("Howard's Toilet", "Brown", "Estate", 20, 2);
+        board[2] = new Property("Lost and Found", "Blue", "Special", 0, 6);
+        board[3] = new Property("Sun Center's Toilet", "Brown", "Estate", 40, 6);
+        board[4] = new Property("Donation", "Black", "Special", 200, 0);
+        board[5] = new Property("Sale Station", "Black", "Special", 180, 15);
+        board[6] = new Property("Chrothall First Floor", "Light Blue", "Estate", 200, 16);
+        board[7] = new Property("Chrothall Second Floor", "Light Blue", "Estate", 210, 18);
+        board[8] = new Property("Events", "Black", "Special", 0, 0);
+        board[9] = new Property("Chrothall Third Floor", "Light Blue", "Estate", 220, 20);
+        board[10] = new Property("Passing by Mr.Primrose's office", "White", "Special", 0, 0);
+        board[11] = new Property("Cristine Duke Lecture Theatre", "Green", "Estate", 240, 22);
+        board[12] = new Property("Cookie Station", "Black", "Special", 160, 20);
+        board[13] = new Property("Lawn", "Green", "Estate", 260, 24);
+        board[14] = new Property("Flag Pole", "Green", "Estate", 270, 25);
+        board[15] = new Property("Bench", "White", "Special", 0, 0);
+        board[16] = new Property("Snowden Library", "Dark Blue", "Estate", 240, 22);
+        board[17] = new Property("School House", "Dark Blue", "Estate", 280, 26);
+        board[18] = new Property("Events", "Black", "Special", 0, 0);
+        board[19] = new Property("Math Office", "Dark Blue", "Estate", 290, 28);
+        board[20] = new Property("Cookie Station", "Black", "Special", 180, 20);
+        board[21] = new Property("Monkmon", "Yellow", "Estate", 300, 30);
+        board[22] = new Property("Single Gym", "Yellow", "Estate", 310, 30);
+        board[23] = new Property("Sale Station", "White", "Special", 200, 15);
+        board[24] = new Property("Double Gym", "Yellow", "Estate", 320, 32);
+        board[25] = new Property("Go to Mr.Primrose's office!!!", "Black", "Special", 0, 0);
+        board[26] = new Property("Events", "Black", "Special", 0, 0);
+        board[27] = new Property("Sun Center", "Orange", "Estate", 360, 40); 
+        board[28] = new Property("Service day", "Black", "Special", 100, 0);
+        board[29] = new Property("Howard Cafe", "Orange", "Estate", 400, 50);
+        
         }
-    }
+    
 
     static int rollDice() {
-        return random.nextInt(6) + 1 + random.nextInt(6) + 1;
+        return random.nextInt(6) + 1;
     }
 
     static void movePlayer(Player player, int steps) {
@@ -129,5 +158,8 @@ public class Monopoly{
         }
 
         System.out.println(player.name + " now has $" + player.money);
+    }
+    static void soundEffect(String effect) {
+        System.out.println("Playing sound: " + effect);
     }
 }
