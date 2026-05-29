@@ -107,9 +107,12 @@ public class Monopoly{
         board[27] = new Property("Sun Center", "Orange", "Estate", 360, 40); 
         board[28] = new Property("Service day", "Black", "Special", 100, 0);
         board[29] = new Property("Howard Cafe", "Orange", "Estate", 400, 50);
-        
         }
     
+    static void LostAndFound(){
+
+        
+    }
 
     static int rollDice() {
         return random.nextInt(6) + 1;
@@ -131,13 +134,13 @@ public class Monopoly{
     static void handleTile(Player player) {
         Property property = board[player.position];
 
-        if (property.owner == null) {
+        if (property.owner == null && property.type.equals("Estate")) {
             System.out.println("Unowned property.");
             System.out.println("Buy for $" + property.price + "? (y/n)");
 
             String choice = scanner.nextLine();
 
-            if (choice.equalsIgnoreCase("y")) {
+            if (choice.equalsIgnoreCase("y") && property.type.equals("Estate")) {
                 if (player.money >= property.price) {
                     player.money -= property.price;
                     property.owner = player;
@@ -146,15 +149,17 @@ public class Monopoly{
                     System.out.println("Not enough money.");
                 }
             }
-        } else if (property.owner != player) {
+        } else if (property.owner != null && property.owner != player) {
             int rent = property.rent;
             System.out.println("Owned by " + property.owner.name);
             System.out.println("Pay rent: $" + rent);
 
             player.money -= rent;
             property.owner.money += rent;
-        } else {
+        } else if (property.owner == player) { 
             System.out.println("You own this property.");
+        } else {
+            System.out.println("No action on this tile.");
         }
 
         System.out.println(player.name + " now has $" + player.money);
