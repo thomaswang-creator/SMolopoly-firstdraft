@@ -154,23 +154,111 @@ public class SMonopoly {
     static void createWindow() {
         frame = new JFrame(GAME_NAME);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1000, 700);
+        frame.setSize(900, 650);
         frame.setLayout(new BorderLayout(10, 10));
 
-        JPanel boardPanel = new JPanel(new GridLayout(5, 6, 4, 4));
+        // Create tile buttons
         tileButtons = new JButton[board.length];
-
         for (int i = 0; i < board.length; i++) {
             tileButtons[i] = new JButton();
             tileButtons[i].setFocusPainted(false);
             tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 11));
             tileButtons[i].setBackground(getTileColor(board[i].color));
-            boardPanel.add(tileButtons[i]);
         }
+
+        // Layout panels: top (1 x 11), bottom (1 x 11), left (4 x 1), right (4 x 1)
+        JPanel mainBoard = new JPanel(new BorderLayout());
+
+        // Top row: top-left corner (15), then 16..24, then top-right corner (25)
+        JPanel topRow = new JPanel();
+        topRow.setLayout(new BoxLayout(topRow, BoxLayout.X_AXIS));
+        topRow.add(tileButtons[15]);
+        for (int i = 16; i <= 24; i++) {
+            topRow.add(tileButtons[i]);
+        }
+        topRow.add(tileButtons[25]);
+
+        // Bottom row: bottom-left corner (10), then 9..1 (in reverse), then bottom-right corner (0)
+        JPanel bottomRow = new JPanel();
+        bottomRow.setLayout(new BoxLayout(bottomRow, BoxLayout.X_AXIS));
+        bottomRow.add(tileButtons[10]);
+        for (int i = 9; i >= 1; i--) {
+            bottomRow.add(tileButtons[i]);
+        }
+        bottomRow.add(tileButtons[0]);
+
+        // Left side (between top-left and bottom-left): 14..11 (top to bottom)
+        JPanel leftCol = new JPanel();
+        leftCol.setLayout(new BoxLayout(leftCol, BoxLayout.Y_AXIS));
+        leftCol.add(tileButtons[14]);
+        leftCol.add(tileButtons[13]);
+        leftCol.add(tileButtons[12]);
+        leftCol.add(tileButtons[11]);
+
+        // Right side (between top-right and bottom-right): 26..29 (top to bottom)
+        JPanel rightCol = new JPanel();
+        rightCol.setLayout(new BoxLayout(rightCol, BoxLayout.Y_AXIS));
+        rightCol.add(tileButtons[26]);
+        rightCol.add(tileButtons[27]);
+        rightCol.add(tileButtons[28]);
+        rightCol.add(tileButtons[29]);
+
+        // Make corner tiles larger and adjust fonts (smaller to fit screen)
+        Dimension cornerSize = new Dimension(80, 80);
+        Dimension horizSize = new Dimension(45, 80);
+        Dimension vertSize = new Dimension(80, 45);
+
+        int[] corners = {0, 10, 15, 25};
+        for (int c : corners) {
+            tileButtons[c].setPreferredSize(cornerSize);
+            tileButtons[c].setMaximumSize(cornerSize);
+            tileButtons[c].setMinimumSize(cornerSize);
+            tileButtons[c].setFont(new Font("Arial", Font.BOLD, 10));
+        }
+
+        // Adjust sizes for edge tiles
+        for (int i = 1; i <= 9; i++) {
+            tileButtons[i].setPreferredSize(horizSize);
+            tileButtons[i].setMaximumSize(horizSize);
+            tileButtons[i].setMinimumSize(horizSize);
+            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+        }
+        for (int i = 16; i <= 24; i++) {
+            tileButtons[i].setPreferredSize(horizSize);
+            tileButtons[i].setMaximumSize(horizSize);
+            tileButtons[i].setMinimumSize(horizSize);
+            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+        }
+        for (int i = 11; i <= 14; i++) {
+            tileButtons[i].setPreferredSize(vertSize);
+            tileButtons[i].setMaximumSize(vertSize);
+            tileButtons[i].setMinimumSize(vertSize);
+            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+        }
+        for (int i = 26; i <= 29; i++) {
+            tileButtons[i].setPreferredSize(vertSize);
+            tileButtons[i].setMaximumSize(vertSize);
+            tileButtons[i].setMinimumSize(vertSize);
+            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+        }
+
+        // Center area (empty board center)
+        JPanel center = new JPanel();
+        center.setBackground(new Color(200, 230, 200));
+
+        // Assemble main board
+        mainBoard.add(topRow, BorderLayout.NORTH);
+        mainBoard.add(bottomRow, BorderLayout.SOUTH);
+        mainBoard.add(leftCol, BorderLayout.WEST);
+        mainBoard.add(rightCol, BorderLayout.EAST);
+        mainBoard.add(center, BorderLayout.CENTER);
+
+        JPanel boardWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        boardWrapper.add(mainBoard);
 
         JPanel sidePanel = new JPanel();
         sidePanel.setLayout(new BorderLayout(8, 8));
-        sidePanel.setPreferredSize(new Dimension(300, 600));
+        sidePanel.setPreferredSize(new Dimension(260, 500));
 
         JPanel topInfoPanel = new JPanel(new GridLayout(0, 1, 3, 3));
         turnLabel = new JLabel();
@@ -203,7 +291,7 @@ public class SMonopoly {
         sidePanel.add(new JScrollPane(logArea), BorderLayout.CENTER);
         sidePanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        frame.add(boardPanel, BorderLayout.CENTER);
+        frame.add(boardWrapper, BorderLayout.CENTER);
         frame.add(sidePanel, BorderLayout.EAST);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
