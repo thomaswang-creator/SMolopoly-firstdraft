@@ -129,16 +129,16 @@ public class SMonopoly {
         board[7] = new Property("Chrothall Second Floor", "Light Blue", "Estate", 210, 18);
         board[8] = new Property("Events", "Black", "Event", 0, 0);
         board[9] = new Property("Chrothall Third Floor", "Light Blue", "Estate", 220, 20);
-        board[10] = new Property("Mr. Primrose's Office", "White", "Special", 0, 0);
-        board[11] = new Property("Cristine Duke Lecture Theatre", "Green", "Estate", 240, 22);
+        board[10] = new Property("Mr. Primrose's Office", "Orange", "Special", 0, 0);
+        board[11] = new Property("Cristine Duke Lecture Theatre", "Cerise", "Estate", 240, 22);
         board[12] = new Property("Cookie Station", "Black", "Estate", 160, 20);
-        board[13] = new Property("Lawn", "Green", "Estate", 260, 24);
-        board[14] = new Property("Flag Pole", "Green", "Estate", 270, 25);
+        board[13] = new Property("Lawn", "Cerise", "Estate", 260, 24);
+        board[14] = new Property("Flag Pole", "Cerise", "Estate", 270, 25);
         board[15] = new Property("Bench", "White", "Special", 0, 0);
-        board[16] = new Property("Snowden Library", "Dark Blue", "Estate", 240, 22);
-        board[17] = new Property("School House", "Dark Blue", "Estate", 280, 26);
+        board[16] = new Property("Snowden Library", "Red", "Estate", 240, 22);
+        board[17] = new Property("School House", "Red", "Estate", 280, 26);
         board[18] = new Property("Events", "Black", "Event", 0, 0);
-        board[19] = new Property("Math Office", "Dark Blue", "Estate", 290, 28);
+        board[19] = new Property("Math Office", "Red", "Estate", 290, 28);
         board[20] = new Property("Cookie Station 2", "Black", "Estate", 180, 20);
         board[21] = new Property("Monkmon", "Yellow", "Estate", 300, 30);
         board[22] = new Property("Single Gym", "Yellow", "Estate", 310, 30);
@@ -204,16 +204,16 @@ public class SMonopoly {
         rightCol.add(tileButtons[29]);
 
         // Make corner tiles larger and adjust fonts (smaller to fit screen)
-        Dimension cornerSize = new Dimension(80, 80);
-        Dimension horizSize = new Dimension(45, 80);
-        Dimension vertSize = new Dimension(80, 45);
+        Dimension cornerSize = new Dimension(100, 100);
+        Dimension horizSize = new Dimension(75, 100);
+        Dimension vertSize = new Dimension(100, 100);
 
         int[] corners = {0, 10, 15, 25};
         for (int c : corners) {
             tileButtons[c].setPreferredSize(cornerSize);
             tileButtons[c].setMaximumSize(cornerSize);
             tileButtons[c].setMinimumSize(cornerSize);
-            tileButtons[c].setFont(new Font("Arial", Font.BOLD, 10));
+            tileButtons[c].setFont(new Font("Arial", Font.BOLD, 8));
         }
 
         // Adjust sizes for edge tiles
@@ -221,25 +221,25 @@ public class SMonopoly {
             tileButtons[i].setPreferredSize(horizSize);
             tileButtons[i].setMaximumSize(horizSize);
             tileButtons[i].setMinimumSize(horizSize);
-            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
         }
         for (int i = 16; i <= 24; i++) {
             tileButtons[i].setPreferredSize(horizSize);
             tileButtons[i].setMaximumSize(horizSize);
             tileButtons[i].setMinimumSize(horizSize);
-            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
         }
         for (int i = 11; i <= 14; i++) {
             tileButtons[i].setPreferredSize(vertSize);
             tileButtons[i].setMaximumSize(vertSize);
             tileButtons[i].setMinimumSize(vertSize);
-            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
         }
         for (int i = 26; i <= 29; i++) {
             tileButtons[i].setPreferredSize(vertSize);
             tileButtons[i].setMaximumSize(vertSize);
             tileButtons[i].setMinimumSize(vertSize);
-            tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 9));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
         }
 
         // Center area (empty board center)
@@ -459,7 +459,7 @@ public class SMonopoly {
 
         for (int i = 0; i < tileButtons.length; i++) {
             Property property = board[i];
-            String text = "<html><center>" + i + ": " + property.name + getPlayersOnTileText(i);
+            String text = "<html><center>" + property.name + getPlayersOnTileText(i);
 
             if (property.owner != null) {
                 text = text + "<br>Owner: " + property.owner.name;
@@ -489,10 +489,10 @@ public class SMonopoly {
             return new Color(176, 122, 74);
         } else if (colorName.equals("Light Blue")) {
             return new Color(150, 210, 255);
-        } else if (colorName.equals("Green")) {
-            return new Color(130, 210, 140);
-        } else if (colorName.equals("Dark Blue")) {
-            return new Color(100, 150, 230);
+        } else if (colorName.equals("Cerise")) {
+            return new Color(255, 84, 190);
+        } else if (colorName.equals("Red")) {
+            return new Color(235, 0, 66);
         } else if (colorName.equals("Yellow")) {
             return new Color(245, 220, 90);
         } else if (colorName.equals("Orange")) {
