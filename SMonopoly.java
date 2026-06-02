@@ -121,7 +121,7 @@ public class SMonopoly {
         // Type can be "Estate", "Special", "Event", "Tax", or "Go To Office".
         board[0] = new Property("GO", "White", "Special", 0, 0);
         board[1] = new Property("Howard's Toilet", "Brown", "Estate", 20, 2);
-        board[2] = new Property("Lost and Found", "Blue", "Special", 0, 6);
+        board[2] = new Property("Lost and Found", "White", "Special", 0, 6);
         board[3] = new Property("Sun Center's Toilet", "Brown", "Estate", 40, 6);
         board[4] = new Property("Donation", "Black", "Tax", 200, 0);
         board[5] = new Property("Sale Station", "Black", "Estate", 180, 15);
@@ -146,9 +146,9 @@ public class SMonopoly {
         board[24] = new Property("Double Gym", "Yellow", "Estate", 320, 32);
         board[25] = new Property("Go to Mr. Primrose's Office!", "Black", "Go To Office", 0, 0);
         board[26] = new Property("Events", "Black", "Event", 0, 0);
-        board[27] = new Property("Sun Center", "Orange", "Estate", 360, 40);
+        board[27] = new Property("Sun Center", "Green", "Estate", 360, 40);
         board[28] = new Property("Service Day", "Black", "Tax", 100, 0);
-        board[29] = new Property("Howard Cafe", "Orange", "Estate", 400, 50);
+        board[29] = new Property("Howard Cafe", "Blue", "Estate", 400, 50);
     }
 
     static void createWindow() {
@@ -494,13 +494,15 @@ public class SMonopoly {
         } else if (colorName.equals("Red")) {
             return new Color(235, 0, 66);
         } else if (colorName.equals("Yellow")) {
-            return new Color(245, 220, 90);
+            return new Color(245, 224, 39);
         } else if (colorName.equals("Orange")) {
             return new Color(245, 175, 95);
         } else if (colorName.equals("Black")) {
             return new Color(210, 210, 210);
         } else if (colorName.equals("Blue")) {
-            return new Color(170, 200, 255);
+            return new Color(36, 60, 255);
+        } else if (colorName.equals("Green")) {
+            return new Color(0, 199, 56);
         } else {
             return Color.WHITE;
         }
