@@ -37,6 +37,7 @@ public class SMonopoly {
     static JLabel roundLabel;
     static JLabel[] playerLabels;
     static JTextArea logArea;
+    static JTextArea boardInfoArea;
 
     static class Property {
         String name;
@@ -77,6 +78,7 @@ public class SMonopoly {
                 updateScreen();
                 addLog("Welcome to " + GAME_NAME + "!");
                 addLog("The richest player after " + MAX_ROUNDS + " rounds wins.");
+                addLog("The richest player after " + MAX_ROUNDS + " turns wins.");
             }
         });
     }
@@ -155,6 +157,7 @@ public class SMonopoly {
         frame = new JFrame(GAME_NAME);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 650);
+        frame.setSize(1200, 750);
         frame.setLayout(new BorderLayout(10, 10));
 
         // Create tile buttons
@@ -164,6 +167,8 @@ public class SMonopoly {
             tileButtons[i].setFocusPainted(false);
             tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 11));
             tileButtons[i].setBackground(getTileColor(board[i].color));
+            int tileIndex = i;
+            tileButtons[i].addActionListener(e -> showBlockInfo(tileIndex));
         }
 
         // Layout panels: top (1 x 11), bottom (1 x 11), left (4 x 1), right (4 x 1)
@@ -244,7 +249,21 @@ public class SMonopoly {
 
         // Center area (empty board center)
         JPanel center = new JPanel();
+        // Center area with block information display
+        JPanel center = new JPanel(new BorderLayout(8, 8));
         center.setBackground(new Color(200, 230, 200));
+
+        JLabel centerTitle = new JLabel("Block Information", SwingConstants.CENTER);
+        centerTitle.setFont(new Font("Arial", Font.BOLD, 16));
+        center.add(centerTitle, BorderLayout.NORTH);
+
+        boardInfoArea = new JTextArea();
+        boardInfoArea.setEditable(false);
+        boardInfoArea.setLineWrap(true);
+        boardInfoArea.setWrapStyleWord(true);
+        boardInfoArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        boardInfoArea.setText("Click any block to view its details here.");
+        center.add(new JScrollPane(boardInfoArea), BorderLayout.CENTER);
 
         // Assemble main board
         mainBoard.add(topRow, BorderLayout.NORTH);
@@ -482,6 +501,42 @@ public class SMonopoly {
             }
         }
         return text;
+    }
+
+    static void showBlockInfo(int tileIndex) {
+        Property property = board[tileIndex];
+        boardInfoArea.setText(getBlockInfoText(property));
+    }
+
+    static String getBlockInfoText(Property property) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Name: ").append(property.name).append("\n");
+        builder.append("Type: ").append(property.type).append("\n");
+        builder.append("Color group: ").append(property.color).append("\n");
+
+        if (property.type.equals("Estate")) {
+            builder.append("Price: $").append(property.price).append("\n");
+            builder.append("Base Rent: $").append(property.rent).append("\n");
+            builder.append("Rent if all same color owned: $").append(property.rent * 2).append("\n");
+            builder.append("House Cost: $").append(property.price / 2).append("\n");
+            builder.append("Rent with House: $").append(property.rent * 3).append("\n");
+        } else if (property.type.equals("Tax")) {
+            builder.append("Tax Amount: $").append(property.price).append("\n");
+        } else if (property.type.equals("Go To Office")) {
+            builder.append("Go to Mr. Primrose's Office!\n");
+        } else if (property.type.equals("Event")) {
+            builder.append("Event space.\n");
+        } else {
+            builder.append("This block does not have property price or rent.\n");
+        }
+
+        if (property.owner != null) {
+            builder.append("Status: Owned by ").append(property.owner.name).append("\n");
+        } else {
+            builder.append("Status: Unowned\n");
+        }
+
+        return builder.toString();
     }
 
     static Color getTileColor(String colorName) {
