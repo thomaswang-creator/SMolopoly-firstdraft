@@ -11,14 +11,17 @@ public class SMonopoly {
     static final int MAX_ROUNDS = 20;
     static final int MAX_PLAYERS = 3;
 
-    // CHANGE PUNISHMENT VERBAL MESSAGES HERE
+    // CHANGE EVENT MESSAGES HERE
     // These show up when a player lands on an Events space.
-    static final String[] PUNISHMENT_MESSAGES = {
+    static final String[] EVENT_MESSAGES = {
             "You forgot your homework. Pay $50.",
             "You were late to class. Pay $40.",
             "You lost your student card. Pay $30.",
             "You helped clean up after school. Collect $60.",
-            "You won a small school prize. Collect $80."
+            "You won a small school prize. Collect $80.",
+            "You found a shortcut to Chrothall First Floor. Move there.",
+            "A surprise reward sends you back to GO.",
+            "A friend invited you to Cookie Station. Move there."
     };
 
     static Random random = new Random();
@@ -61,11 +64,19 @@ public class SMonopoly {
         String name;
         int money;
         int position;
+        boolean detentionPass;
+        boolean inDetention;
+        int turnsInDetention;
+        boolean isBankrupt;
 
         public Player(String name) {
             this.name = name;
             this.money = STARTING_MONEY;
             this.position = 0;
+            this.detentionPass = false;
+            this.inDetention = false;
+            this.turnsInDetention = 0;
+            this.isBankrupt = false;
         }
     }
 
@@ -73,48 +84,84 @@ public class SMonopoly {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 setupBoard();
-                setupPlayers();
+                if (!setupPlayers()) {
+                    System.exit(0);
+                    return;
+                }
                 createWindow();
                 updateScreen();
                 addLog("Welcome to " + GAME_NAME + "!");
-                addLog("The richest player after " + MAX_ROUNDS + " rounds wins.");
                 addLog("The richest player after " + MAX_ROUNDS + " turns wins.");
             }
         });
     }
 
-    static void setupPlayers() {
-        String answer = JOptionPane.showInputDialog(null,
-                "How many players? Enter 2 or 3:",
-                GAME_NAME,
-                JOptionPane.QUESTION_MESSAGE);
+    static boolean setupPlayers() {
+        int playerCount = -1;
+        int playerIndex = 0;
+        boolean backToCount = false;
 
-        int playerCount = 2;
-        try {
-            playerCount = Integer.parseInt(answer);
-        } catch (Exception e) {
-            playerCount = 2;
-        }
+        while (true) {
+            if (playerCount != 2 && playerCount != 3) {
+                String answer = JOptionPane.showInputDialog(null,
+                        "How many players? Enter 2 or 3:",
+                        GAME_NAME,
+                        JOptionPane.QUESTION_MESSAGE);
 
-        if (playerCount < 2) {
-            playerCount = 2;
-        }
-        if (playerCount > MAX_PLAYERS) {
-            playerCount = MAX_PLAYERS;
-        }
+                if (answer == null) {
+                    return false;
+                }
 
-        players = new Player[playerCount];
-        for (int i = 0; i < players.length; i++) {
+                try {
+                    playerCount = Integer.parseInt(answer.trim());
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Please enter a valid number of players: 2 or 3.",
+                            GAME_NAME,
+                            JOptionPane.WARNING_MESSAGE);
+                    continue;
+                }
+
+                if (playerCount < 2 || playerCount > MAX_PLAYERS) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Please enter 2 or 3 players.",
+                            GAME_NAME,
+                            JOptionPane.WARNING_MESSAGE);
+                    playerCount = -1;
+                    continue;
+                }
+
+                players = new Player[playerCount];
+                playerIndex = 0;
+            }
+
+            String prompt = "Name for Player " + (playerIndex + 1) + ":";
             String name = JOptionPane.showInputDialog(null,
-                    "Name for Player " + (i + 1) + ":",
+                    prompt,
                     GAME_NAME,
                     JOptionPane.QUESTION_MESSAGE);
 
-            if (name == null || name.trim().equals("")) {
-                name = "Player " + (i + 1);
+            if (name == null) {
+                if (playerIndex == 0) {
+                    playerCount = -1;
+                    continue;
+                }
+                playerIndex--;
+                continue;
             }
-            players[i] = new Player(name.trim());
+
+            if (name.trim().equals("")) {
+                name = "Player " + (playerIndex + 1);
+            }
+            players[playerIndex] = new Player(name.trim());
+            playerIndex++;
+
+            if (playerIndex >= playerCount) {
+                break;
+            }
         }
+
+        return true;
     }
 
     static void setupBoard() {
@@ -156,7 +203,6 @@ public class SMonopoly {
     static void createWindow() {
         frame = new JFrame(GAME_NAME);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 650);
         frame.setSize(1200, 750);
         frame.setLayout(new BorderLayout(10, 10));
 
@@ -166,7 +212,6 @@ public class SMonopoly {
             tileButtons[i] = new JButton();
             tileButtons[i].setFocusPainted(false);
             tileButtons[i].setFont(new Font("Arial", Font.PLAIN, 11));
-            tileButtons[i].setBackground(getTileColor(board[i].color));
             int tileIndex = i;
             tileButtons[i].addActionListener(e -> showBlockInfo(tileIndex));
         }
@@ -247,8 +292,6 @@ public class SMonopoly {
             tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
         }
 
-        // Center area (empty board center)
-        JPanel center = new JPanel();
         // Center area with block information display
         JPanel center = new JPanel(new BorderLayout(8, 8));
         center.setBackground(new Color(200, 230, 200));
@@ -321,7 +364,71 @@ public class SMonopoly {
             return;
         }
 
+        // Skip to next non-bankrupt player
+        while (currentPlayerIndex < players.length && players[currentPlayerIndex].isBankrupt) {
+            currentPlayerIndex++;
+        }
+
+        if (currentPlayerIndex >= players.length) {
+            currentPlayerIndex = 0;
+            roundNumber++;
+            while (currentPlayerIndex < players.length && players[currentPlayerIndex].isBankrupt) {
+                currentPlayerIndex++;
+            }
+        }
+
+        if (checkGameEndCondition()) {
+            return;
+        }
+
         Player currentPlayer = players[currentPlayerIndex];
+
+        // Check if player is in detention
+        if (currentPlayer.inDetention) {
+            addLog("");
+            addLog(currentPlayer.name + " is in Mr. Primrose's Office (turn " + (currentPlayer.turnsInDetention + 1) + " of 2).");
+
+            if (currentPlayer.turnsInDetention >= 1) {
+                // Automatically release after 1 turn
+                currentPlayer.inDetention = false;
+                currentPlayer.turnsInDetention = 0;
+                addLog(currentPlayer.name + " is released from the office!");
+            } else if (currentPlayer.detentionPass) {
+                // Ask if they want to use the detention pass
+                int choice = JOptionPane.showConfirmDialog(frame,
+                        currentPlayer.name + ", do you want to use your Detention pass?",
+                        "Use Detention Pass",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (choice == JOptionPane.YES_OPTION) {
+                    currentPlayer.detentionPass = false;
+                    currentPlayer.inDetention = false;
+                    currentPlayer.turnsInDetention = 0;
+                    currentPlayer.position = 25;
+                    addLog(currentPlayer.name + " used their detention pass and returned to the original spot!");
+
+                    int roll = rollDice();
+                    addLog(currentPlayer.name + " rolled a " + roll + ".");
+                    movePlayer(currentPlayer, roll);
+                    handleTile(currentPlayer);
+                } else {
+                    currentPlayer.turnsInDetention++;
+                    addLog(currentPlayer.name + " chose to stay in the office.");
+                }
+            } else {
+                currentPlayer.turnsInDetention++;
+                addLog(currentPlayer.name + " has no pass, must stay in the office.");
+            }
+
+            goToNextPlayer();
+            updateScreen();
+
+            if (roundNumber > MAX_ROUNDS) {
+                endGame();
+            }
+            return;
+        }
+
         int roll = rollDice();
         addLog("");
         addLog(currentPlayer.name + " rolled a " + roll + ".");
@@ -330,11 +437,16 @@ public class SMonopoly {
         handleTile(currentPlayer);
 
         if (currentPlayer.money < 0) {
-            addLog(currentPlayer.name + " is below $0, but the game continues until round " + MAX_ROUNDS + ".");
+            currentPlayer.isBankrupt = true;
+            addLog(currentPlayer.name + " is bankrupt and is out of the game!");
         }
 
         goToNextPlayer();
         updateScreen();
+
+        if (checkGameEndCondition()) {
+            return;
+        }
 
         if (roundNumber > MAX_ROUNDS) {
             endGame();
@@ -369,12 +481,48 @@ public class SMonopoly {
         } else if (property.type.equals("Event")) {
             handleEvent(player);
         } else if (property.type.equals("Go To Office")) {
-            player.position = 10;
-            player.money = player.money - 100;
-            addLog(player.name + " went to Mr. Primrose's Office and paid $100.");
+            handleGoToOffice(player);
+        } else if (property.name.equals("Lost and Found")) {
+            handleLostAndFound(player);
         } else {
             addLog(player.name + " is resting on " + property.name + ".");
         }
+    }
+
+    static void handleLostAndFound(Player player) {
+        int outcome = random.nextInt(4);
+
+        if (outcome == 0) {
+            int amount = 50 + random.nextInt(51);
+            player.money += amount;
+            addLog(player.name + " found $" + amount + " in the Lost and Found!");
+        } else if (outcome == 1) {
+            player.detentionPass = true;
+            addLog(player.name + " found a Get Out of Detention Free card in the Lost and Found!");
+        } else if (outcome == 2) {
+            int amount = 30;
+            int collectedFromPlayers = 0;
+            for (int i = 0; i < players.length; i++) {
+                if (players[i] != player) {
+                    int payment = Math.min(amount, players[i].money);
+                    players[i].money -= payment;
+                    player.money += payment;
+                    collectedFromPlayers += payment;
+                }
+            }
+            addLog(player.name + " collected $" + collectedFromPlayers + " from other players at the Lost and Found!");
+        } else {
+            int loss = 20 + random.nextInt(21);
+            player.money -= loss;
+            addLog(player.name + " lost $" + loss + " at the Lost and Found.");
+        }
+    }
+
+    static void handleGoToOffice(Player player) {
+        player.position = 10;
+        player.inDetention = true;
+        player.turnsInDetention = 0;
+        addLog(player.name + " went to Mr. Primrose's Office and is now in detention!");
     }
 
     static void handleEstate(Player player, Property property) {
@@ -405,8 +553,8 @@ public class SMonopoly {
     }
 
     static void handleEvent(Player player) {
-        int eventNumber = random.nextInt(PUNISHMENT_MESSAGES.length);
-        String message = PUNISHMENT_MESSAGES[eventNumber];
+        int eventNumber = random.nextInt(EVENT_MESSAGES.length);
+        String message = EVENT_MESSAGES[eventNumber];
         addLog(message);
 
         if (eventNumber == 0) {
@@ -419,7 +567,26 @@ public class SMonopoly {
             player.money = player.money + 60;
         } else if (eventNumber == 4) {
             player.money = player.money + 80;
+        } else if (eventNumber == 5) {
+            movePlayerTo(player, 6);
+            handleTile(player);
+        } else if (eventNumber == 6) {
+            movePlayerTo(player, 0);
+            handleTile(player);
+        } else if (eventNumber == 7) {
+            movePlayerTo(player, 12);
+            handleTile(player);
         }
+    }
+
+    static void movePlayerTo(Player player, int targetIndex) {
+        int oldPosition = player.position;
+        player.position = targetIndex;
+        if (targetIndex < oldPosition) {
+            player.money += PASS_GO_MONEY;
+            addLog(player.name + " passed GO and collected $" + PASS_GO_MONEY + ".");
+        }
+        addLog(player.name + " moved from " + board[oldPosition].name + " to " + board[player.position].name + ".");
     }
 
     static void goToNextPlayer() {
@@ -430,15 +597,36 @@ public class SMonopoly {
         }
     }
 
+    static boolean checkGameEndCondition() {
+        int solventPlayers = 0;
+        for (Player p : players) {
+            if (!p.isBankrupt) {
+                solventPlayers++;
+            }
+        }
+
+        if (solventPlayers <= 1) {
+            endGame();
+            return true;
+        }
+        return false;
+    }
+
     static void endGame() {
         gameOver = true;
         rollButton.setEnabled(false);
 
-        Player winner = players[0];
-        for (int i = 1; i < players.length; i++) {
-            if (players[i].money > winner.money) {
-                winner = players[i];
+        Player winner = null;
+        for (int i = 0; i < players.length; i++) {
+            if (!players[i].isBankrupt) {
+                if (winner == null || players[i].money > winner.money) {
+                    winner = players[i];
+                }
             }
+        }
+
+        if (winner == null) {
+            winner = players[0];
         }
 
         addLog("");
@@ -469,7 +657,8 @@ public class SMonopoly {
         for (int i = 0; i < playerLabels.length; i++) {
             if (i < players.length) {
                 Player player = players[i];
-                playerLabels[i].setText(player.name + ": $" + player.money + " | Space " + player.position);
+                String status = player.isBankrupt ? " [BANKRUPT]" : "";
+                playerLabels[i].setText(player.name + ": $" + player.money + " | Space " + player.position + status);
                 playerLabels[i].setVisible(true);
             } else {
                 playerLabels[i].setVisible(false);
