@@ -221,7 +221,7 @@ public class SMonopoly {
             tileButtons[i].addActionListener(event -> {
                 showBlockInfo(index);
             });
-        }
+        }{
         // Layout panels: top (1 x 11), bottom (1 x 11), left (4 x 1), right (4 x 1)
         JPanel mainBoard = new JPanel(new BorderLayout());
 
