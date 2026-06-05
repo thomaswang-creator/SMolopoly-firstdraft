@@ -209,14 +209,19 @@ public class SMonopoly {
         // Create tile buttons
         tileButtons = new JButton[board.length];
         for (int i = 0; i < board.length; i++) {
+            final int index = i;
+            
             tileButtons[i] = new JButton();
             tileButtons[i].setFocusPainted(false);
             tileButtons[i].setOpaque(true);
             tileButtons[i].setContentAreaFilled(true);
             tileButtons[i].setBorderPainted(true);
             tileButtons[i].setBackground(getTileColor(board[i].color));
+            
+            tileButtons[i].addActionListener(event -> {
+                showBlockInfo(index);
+            });
         }
-
         // Layout panels: top (1 x 11), bottom (1 x 11), left (4 x 1), right (4 x 1)
         JPanel mainBoard = new JPanel(new BorderLayout());
 
