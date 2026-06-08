@@ -537,6 +537,10 @@ public class SMonopoly {
         return board[5].owner == player && board[23].owner == player;
     }
 
+    static boolean ownsAllCookieStations(Player player) {
+        return board[12].owner == player && board[20].owner == player;
+    }
+
     static void handleEstate(Player player, Property property) {
         if (property.owner == null) {
             int choice = JOptionPane.showConfirmDialog(frame,
@@ -560,8 +564,22 @@ public class SMonopoly {
         } else {
             int rentToPay = property.rent;
             
+            // Check if this is a Cookie Station
+            if ((property.name.equals("Cookie Station") || property.name.equals("Cookie Station 2"))) {
+                int diceRoll = rollDice();
+                addLog(property.owner.name + " rolls the dice for Cookie Station rent: " + diceRoll + "!");
+                
+                if (ownsAllCookieStations(property.owner)) {
+                    // Both Cookie Stations owned: 2 × dice number × rent
+                    rentToPay = 2 * diceRoll * property.rent;
+                    addLog("Both Cookie Stations are owned by " + property.owner.name + "! (2x multiplier)");
+                } else {
+                    // One Cookie Station owned: dice number × rent
+                    rentToPay = diceRoll * property.rent;
+                }
+            }
             // Check if this is a Sale Station and owner has both
-            if ((property.name.equals("Sale Station") || property.name.equals("Sale Station 2")) && 
+            else if ((property.name.equals("Sale Station") || property.name.equals("Sale Station 2")) && 
                 ownsAllSaleStations(property.owner)) {
                 rentToPay = 50;
                 addLog("Both Sale Stations are owned by " + property.owner.name + "!");
