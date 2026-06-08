@@ -270,7 +270,7 @@ public class SMonopoly {
             tileButtons[c].setPreferredSize(cornerSize);
             tileButtons[c].setMaximumSize(cornerSize);
             tileButtons[c].setMinimumSize(cornerSize);
-            tileButtons[c].setFont(new Font("Arial", Font.BOLD, 8));
+            tileButtons[c].setFont(new Font("Arial", Font.BOLD, 12));
         }
 
         // Adjust sizes for edge tiles
@@ -278,25 +278,26 @@ public class SMonopoly {
             tileButtons[i].setPreferredSize(horizSize);
             tileButtons[i].setMaximumSize(horizSize);
             tileButtons[i].setMinimumSize(horizSize);
-            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 12));
         }
         for (int i = 16; i <= 24; i++) {
             tileButtons[i].setPreferredSize(horizSize);
             tileButtons[i].setMaximumSize(horizSize);
             tileButtons[i].setMinimumSize(horizSize);
-            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 12));
         }
         for (int i = 11; i <= 14; i++) {
             tileButtons[i].setPreferredSize(vertSize);
             tileButtons[i].setMaximumSize(vertSize);
             tileButtons[i].setMinimumSize(vertSize);
-            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 12));
         }
         for (int i = 26; i <= 29; i++) {
             tileButtons[i].setPreferredSize(vertSize);
             tileButtons[i].setMaximumSize(vertSize);
             tileButtons[i].setMinimumSize(vertSize);
-            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 8));
+            tileButtons[i].setFont(new Font("Arial", Font.BOLD, 12   
+            ));
         }
 
         // Center area with block information display
