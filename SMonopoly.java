@@ -221,7 +221,8 @@ public class SMonopoly {
             tileButtons[i].addActionListener(event -> {
                 showBlockInfo(index);
             });
-        }{
+        }
+
         // Layout panels: top (1 x 11), bottom (1 x 11), left (4 x 1), right (4 x 1)
         JPanel mainBoard = new JPanel(new BorderLayout());
 
@@ -531,6 +532,10 @@ public class SMonopoly {
         addLog(player.name + " went to Mr. Primrose's Office and is now in detention!");
     }
 
+    static boolean ownsAllSaleStations(Player player) {
+        return board[5].owner == player && board[23].owner == player;
+    }
+
     static void handleEstate(Player player, Property property) {
         if (property.owner == null) {
             int choice = JOptionPane.showConfirmDialog(frame,
@@ -552,9 +557,18 @@ public class SMonopoly {
         } else if (property.owner == player) {
             addLog(player.name + " owns this property already.");
         } else {
-            player.money = player.money - property.rent;
-            property.owner.money = property.owner.money + property.rent;
-            addLog(player.name + " paid $" + property.rent + " rent to " + property.owner.name + ".");
+            int rentToPay = property.rent;
+            
+            // Check if this is a Sale Station and owner has both
+            if ((property.name.equals("Sale Station") || property.name.equals("Sale Station 2")) && 
+                ownsAllSaleStations(property.owner)) {
+                rentToPay = 50;
+                addLog("Both Sale Stations are owned by " + property.owner.name + "!");
+            }
+            
+            player.money = player.money - rentToPay;
+            property.owner.money = property.owner.money + rentToPay;
+            addLog(player.name + " paid $" + rentToPay + " rent to " + property.owner.name + ".");
         }
     }
 
