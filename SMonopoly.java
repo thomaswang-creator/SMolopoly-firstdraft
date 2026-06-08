@@ -99,7 +99,6 @@ public class SMonopoly {
     static boolean setupPlayers() {
         int playerCount = -1;
         int playerIndex = 0;
-        boolean backToCount = false;
 
         while (true) {
             if (playerCount != 2 && playerCount != 3) {
