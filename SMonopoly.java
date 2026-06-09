@@ -8,7 +8,7 @@ public class SMonopoly {
 
     static final int STARTING_MONEY = 1500;
     static final int PASS_GO_MONEY = 200;
-    static final int MAX_ROUNDS = 20;
+    static final int MAX_ROUNDS = 30;
     static final int MAX_PLAYERS = 3;
     static final String[] PLAYER_TOKEN_IMAGES = {
             "/Users/thomaswang/Downloads/images-6.png",
