@@ -10,6 +10,13 @@ public class SMonopoly {
     static final int PASS_GO_MONEY = 200;
     static final int MAX_ROUNDS = 20;
     static final int MAX_PLAYERS = 3;
+    static final String[] PLAYER_TOKEN_IMAGES = {
+            "/Users/thomaswang/Downloads/images-6.png",
+            "/Users/thomaswang/Downloads/darth-vader-and-jabba-the-hut-tokens-leak-v0-a1vwremjvrxe1.jpg.png",
+            "/Users/thomaswang/Downloads/MinigameDig_HotDogTreasures3_OBWN_Icon.png"
+    };
+    static final int[] PLAYER_TOKEN_WIDTHS = {28, 58, 30};
+    static final int[] PLAYER_TOKEN_HEIGHTS = {35, 52, 30};
 
     // CHANGE EVENT MESSAGES HERE
     // These show up when a player lands on an Events space.
@@ -705,7 +712,7 @@ public class SMonopoly {
 
         for (int i = 0; i < tileButtons.length; i++) {
             Property property = board[i];
-            String text = "<html><center>" + property.name + getPlayersOnTileText(i);
+            String text = "<html><center>" + property.name + getPlayersOnTileImages(i);
 
             if (property.owner != null) {
                 text = text + "<br>Owner: " + property.owner.name;
@@ -720,12 +727,15 @@ public class SMonopoly {
         }
     }
 
-    static String getPlayersOnTileText(int tileNumber) {
+    static String getPlayersOnTileImages(int tileNumber) {
         String text = "";
         for (int i = 0; i < players.length; i++) {
             if (players[i].position == tileNumber) {
-                text = text + "<br>" + players[i].name;
+                text = text + "<img src='file:" + PLAYER_TOKEN_IMAGES[i] + "' width='" + PLAYER_TOKEN_WIDTHS[i] + "' height='" + PLAYER_TOKEN_HEIGHTS[i] + "'>";
             }
+        }
+        if (!text.equals("")) {
+            text = "<br>" + text;
         }
         return text;
     }
