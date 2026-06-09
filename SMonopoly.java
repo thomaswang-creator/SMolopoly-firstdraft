@@ -11,9 +11,9 @@ public class SMonopoly {
     static final int MAX_ROUNDS = 30;
     static final int MAX_PLAYERS = 3;
     static final String[] PLAYER_TOKEN_IMAGES = {
-            "/Users/thomaswang/Downloads/images-6.png",
-            "/Users/thomaswang/Downloads/darth-vader-and-jabba-the-hut-tokens-leak-v0-a1vwremjvrxe1.jpg.png",
-            "/Users/thomaswang/Downloads/MinigameDig_HotDogTreasures3_OBWN_Icon.png"
+            "assets/player1-token.png",
+            "assets/player2-token.png",
+            "assets/player3-token.png"
     };
     static final int[] PLAYER_TOKEN_WIDTHS = {28, 58, 30};
     static final int[] PLAYER_TOKEN_HEIGHTS = {35, 52, 30};
@@ -731,13 +731,17 @@ public class SMonopoly {
         String text = "";
         for (int i = 0; i < players.length; i++) {
             if (players[i].position == tileNumber) {
-                text = text + "<img src='file:" + PLAYER_TOKEN_IMAGES[i] + "' width='" + PLAYER_TOKEN_WIDTHS[i] + "' height='" + PLAYER_TOKEN_HEIGHTS[i] + "'>";
+                text = text + "<img src='" + getTokenImagePath(i) + "' width='" + PLAYER_TOKEN_WIDTHS[i] + "' height='" + PLAYER_TOKEN_HEIGHTS[i] + "'>";
             }
         }
         if (!text.equals("")) {
             text = "<br>" + text;
         }
         return text;
+    }
+
+    static String getTokenImagePath(int playerIndex) {
+        return new java.io.File(PLAYER_TOKEN_IMAGES[playerIndex]).toURI().toString();
     }
 
     static void showBlockInfo(int tileIndex) {
