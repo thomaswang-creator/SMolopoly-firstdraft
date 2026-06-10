@@ -34,7 +34,7 @@ public class SMonopoly {
             "A surprise reward sends you back to GO.",
             "A friend invited you to Cookie Station. Move there."
     };
-
+    
     static Random random = new Random();
     static Property[] board = new Property[30];
     static Player[] players;
@@ -53,7 +53,9 @@ public class SMonopoly {
     static JTextArea logArea;
     static JTextArea boardInfoArea;
     static JLabel boardImageLabel;
-
+    static JLabel landingBannerLabel;  // banner shown when a player lands on a property
+    static int lastLandedTile = -1;    // tracks the most recently landed-on tile
+    static Clip bgmClip;
     static class Property {
         String name;
         String color;
@@ -100,8 +102,10 @@ public class SMonopoly {
                     System.exit(0);
                     return;
                 }
+                playBackgroundMusic();
                 createWindow();
                 updateScreen();
+                
                 addLog("Welcome to " + GAME_NAME + "!");
                 addLog("The richest player after " + MAX_ROUNDS + " turns wins.");
             }
@@ -323,10 +327,18 @@ public class SMonopoly {
         centerContent.setBackground(new Color(200, 230, 200));
 
         boardImageLabel = new JLabel("", SwingConstants.CENTER);
-        boardImageLabel.setPreferredSize(new Dimension(340, 260));
+        boardImageLabel.setPreferredSize(new Dimension(340, 220));
         boardImageLabel.setOpaque(true);
         boardImageLabel.setBackground(Color.WHITE);
         centerContent.add(boardImageLabel, BorderLayout.NORTH);
+
+        landingBannerLabel = new JLabel("", SwingConstants.CENTER);
+        landingBannerLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        landingBannerLabel.setOpaque(true);
+        landingBannerLabel.setBackground(new Color(255, 243, 176));
+        landingBannerLabel.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
+        landingBannerLabel.setVisible(false);
+        centerContent.add(landingBannerLabel, BorderLayout.SOUTH);
 
         boardInfoArea = new JTextArea();
         boardInfoArea.setEditable(false);
@@ -505,6 +517,10 @@ public class SMonopoly {
     static void handleTile(Player player) {
         Property property = board[player.position];
 
+        // Auto-show the property image and highlight the tile whenever a player lands
+        showBlockInfo(player.position);
+        highlightLandedTile(player.position, player);
+
         if (property.type.equals("Estate")) {
             handleEstate(player, property);
         } else if (property.type.equals("Tax")) {
@@ -514,6 +530,9 @@ public class SMonopoly {
             handleEvent(player);
         } else if (property.type.equals("Go To Office")) {
             handleGoToOffice(player);
+        } else if (property.name.equals("Mr. Primrose's Office")) {
+            playJailSound();
+            addLog(player.name + " is visiting Mr. Primrose's Office.");
         } else if (property.name.equals("Lost and Found")) {
             handleLostAndFound(player);
         } else {
@@ -574,7 +593,18 @@ public class SMonopoly {
             System.out.println("Could not play jail sound.");
         }
     }
-
+    
+    static void playBackgroundMusic() {
+        try {
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new java.io.File("assets/02 Bidding War.wav"));
+            bgmClip = AudioSystem.getClip();
+            bgmClip.open(audioInput);
+            bgmClip.loop(Clip.LOOP_CONTINUOUSLY);
+            bgmClip.start();
+        } catch (Exception e) {
+            System.out.println("Could not play background music.");
+        }
+    }
     static boolean ownsAllSaleStations(Player player) {
         return board[5].owner == player && board[23].owner == player;
     }
@@ -726,6 +756,8 @@ public class SMonopoly {
         gameOver = false;
         rollButton.setEnabled(true);
         logArea.setText("");
+        lastLandedTile = -1;
+        if (landingBannerLabel != null) landingBannerLabel.setVisible(false);
         addLog("New game started.");
         updateScreen();
     }
@@ -758,7 +790,12 @@ public class SMonopoly {
 
             text = text + "</center></html>";
             tileButtons[i].setText(text);
-            tileButtons[i].setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+            // Keep the gold landing-highlight border; only reset tiles that aren't the active landed one
+            if (i == lastLandedTile) {
+                tileButtons[i].setBorder(BorderFactory.createLineBorder(new Color(220, 160, 0), 4));
+            } else {
+                tileButtons[i].setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+            }
             tileButtons[i].setBackground(getTileColor(property.color));
         }
     }
@@ -778,6 +815,22 @@ public class SMonopoly {
 
     static String getTokenImagePath(int playerIndex) {
         return new java.io.File(PLAYER_TOKEN_IMAGES[playerIndex]).toURI().toString();
+    }
+
+    static void highlightLandedTile(int tileIndex, Player player) {
+        // Remove highlight from the previous landed tile
+        if (lastLandedTile >= 0 && lastLandedTile < tileButtons.length) {
+            tileButtons[lastLandedTile].setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+        }
+        lastLandedTile = tileIndex;
+
+        // Draw a thick gold border around the newly landed tile
+        tileButtons[tileIndex].setBorder(BorderFactory.createLineBorder(new Color(220, 160, 0), 4));
+
+        // Show the yellow landing banner with the player's name and property
+        Property prop = board[tileIndex];
+        landingBannerLabel.setText("\uD83D\uDCCD " + player.name + " landed on: " + prop.name);
+        landingBannerLabel.setVisible(true);
     }
 
     static void showBlockInfo(int tileIndex) {
@@ -861,6 +914,10 @@ public class SMonopoly {
             return "assets/Service Day.jpeg";
         } else if (propertyName.equals("Howard Cafe")) {
             return "assets/Howards.jpg";
+        } else if (propertyName.equals("Sun Center's Toilet")) {
+            return "assets/smustoilet.jpg";
+        } else if (propertyName.equals("Sun Center")) {
+            return "assets/suncenter.jpg";
         }
 
         return null;
@@ -923,3 +980,4 @@ public class SMonopoly {
         logArea.setCaretPosition(logArea.getDocument().getLength());
     }
 }
+    
