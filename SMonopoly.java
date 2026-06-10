@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.awt.*;
 import java.util.Random;
 
@@ -10,6 +13,7 @@ public class SMonopoly {
     static final int PASS_GO_MONEY = 200;
     static final int MAX_ROUNDS = 30;
     static final int MAX_PLAYERS = 3;
+    static final String JAIL_SOUND = "assets/jail-sound-effect.wav";
     static final String[] PLAYER_TOKEN_IMAGES = {
             "assets/player1-token.png",
             "assets/player2-token.png",
@@ -48,6 +52,7 @@ public class SMonopoly {
     static JLabel[] playerLabels;
     static JTextArea logArea;
     static JTextArea boardInfoArea;
+    static JLabel boardImageLabel;
 
     static class Property {
         String name;
@@ -311,16 +316,29 @@ public class SMonopoly {
         center.setBackground(new Color(200, 230, 200));
 
         JLabel centerTitle = new JLabel("Block Information", SwingConstants.CENTER);
-        centerTitle.setFont(new Font("Arial", Font.BOLD, 16));
+        centerTitle.setFont(new Font("Arial", Font.BOLD, 13));
         center.add(centerTitle, BorderLayout.NORTH);
+
+        JPanel centerContent = new JPanel(new BorderLayout(4, 4));
+        centerContent.setBackground(new Color(200, 230, 200));
+
+        boardImageLabel = new JLabel("", SwingConstants.CENTER);
+        boardImageLabel.setPreferredSize(new Dimension(340, 260));
+        boardImageLabel.setOpaque(true);
+        boardImageLabel.setBackground(Color.WHITE);
+        centerContent.add(boardImageLabel, BorderLayout.NORTH);
 
         boardInfoArea = new JTextArea();
         boardInfoArea.setEditable(false);
         boardInfoArea.setLineWrap(true);
         boardInfoArea.setWrapStyleWord(true);
-        boardInfoArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        boardInfoArea.setFont(new Font("Arial", Font.PLAIN, 12));
+        boardInfoArea.setRows(4);
         boardInfoArea.setText("Click any block to view its details here.");
-        center.add(new JScrollPane(boardInfoArea), BorderLayout.CENTER);
+        JScrollPane boardInfoScroll = new JScrollPane(boardInfoArea);
+        boardInfoScroll.setPreferredSize(new Dimension(340, 95));
+        centerContent.add(boardInfoScroll, BorderLayout.CENTER);
+        center.add(centerContent, BorderLayout.CENTER);
 
         // Assemble main board
         mainBoard.add(topRow, BorderLayout.NORTH);
@@ -536,7 +554,25 @@ public class SMonopoly {
         player.position = 10;
         player.inDetention = true;
         player.turnsInDetention = 0;
+        playJailSound();
         addLog(player.name + " went to Mr. Primrose's Office and is now in detention!");
+    }
+
+    static void playJailSound() {
+        try {
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new java.io.File(JAIL_SOUND));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            audioInput.close();
+            clip.addLineListener(event -> {
+                if (event.getType() == javax.sound.sampled.LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
+            clip.start();
+        } catch (Exception e) {
+            System.out.println("Could not play jail sound.");
+        }
     }
 
     static boolean ownsAllSaleStations(Player player) {
@@ -746,35 +782,113 @@ public class SMonopoly {
 
     static void showBlockInfo(int tileIndex) {
         Property property = board[tileIndex];
+        showBlockImage(tileIndex, property);
         boardInfoArea.setText(getBlockInfoText(property));
+    }
+
+    static void showBlockImage(int tileIndex, Property property) {
+        String imagePath = getBlockImagePath(tileIndex, property.name);
+
+        if (imagePath == null) {
+            boardImageLabel.setIcon(null);
+            boardImageLabel.setText("");
+            return;
+        }
+
+        ImageIcon originalIcon = new ImageIcon(new java.io.File(imagePath).getAbsolutePath());
+        int imageWidth = originalIcon.getIconWidth();
+        int imageHeight = originalIcon.getIconHeight();
+
+        if (imageWidth <= 0 || imageHeight <= 0) {
+            boardImageLabel.setIcon(null);
+            boardImageLabel.setText("");
+            return;
+        }
+
+        int maxWidth = 340;
+        int maxHeight = 260;
+        double scale = Math.min((double) maxWidth / imageWidth, (double) maxHeight / imageHeight);
+        int scaledWidth = (int) (imageWidth * scale);
+        int scaledHeight = (int) (imageHeight * scale);
+
+        Image scaledImage = originalIcon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+        boardImageLabel.setText("");
+        boardImageLabel.setIcon(new ImageIcon(scaledImage));
+    }
+
+    static String getBlockImagePath(int tileIndex, String propertyName) {
+        if (propertyName.equals("Howard's Toilet")) {
+            return "assets/Howards Washroom.jpg";
+        } else if (propertyName.equals("Sale Station")) {
+            return "assets/Sale station.jpeg";
+        } else if (propertyName.equals("Chrothall First Floor")) {
+            return "assets/Crothall 1.jpg";
+        } else if (propertyName.equals("Chrothall Second Floor")) {
+            return "assets/Crothall 2.jpg";
+        } else if (propertyName.equals("Events") && tileIndex == 8) {
+            return "assets/Event.jpeg";
+        } else if (propertyName.equals("Chrothall Third Floor")) {
+            return "assets/Crothall 3.jpg";
+        } else if (propertyName.equals("Mr. Primrose's Office") || propertyName.equals("Go to Mr. Primrose's Office!")) {
+            return "assets/Primrose Office.jpg";
+        } else if (propertyName.equals("Cristine Duke Lecture Theatre")) {
+            return "assets/Christine Duke.jpg";
+        } else if (propertyName.equals("Cookie Station") || propertyName.equals("Cookie Station 2")) {
+            return "assets/Cookie Station.jpeg";
+        } else if (propertyName.equals("Lawn")) {
+            return "assets/Field.jpg";
+        } else if (propertyName.equals("Flag Pole")) {
+            return "assets/Flag Pole.jpg";
+        } else if (propertyName.equals("Events") && tileIndex == 18) {
+            return "assets/Event 2.jpeg";
+        } else if (propertyName.equals("Snowden Library")) {
+            return "assets/Library.jpg";
+        } else if (propertyName.equals("School House")) {
+            return "assets/School House.jpg";
+        } else if (propertyName.equals("Math Office")) {
+            return "assets/Math Office.jpg";
+        } else if (propertyName.equals("Monkmon")) {
+            return "assets/Monkmen.jpg";
+        } else if (propertyName.equals("Single Gym")) {
+            return "assets/Single Gym.jpg";
+        } else if (propertyName.equals("Sale Station 2")) {
+            return "assets/sale station 2.jpeg";
+        } else if (propertyName.equals("Double Gym")) {
+            return "assets/Double Gym.jpg";
+        } else if (propertyName.equals("Events") && tileIndex == 26) {
+            return "assets/Event.jpeg";
+        } else if (propertyName.equals("Service Day")) {
+            return "assets/Service Day.jpeg";
+        } else if (propertyName.equals("Howard Cafe")) {
+            return "assets/Howards.jpg";
+        }
+
+        return null;
     }
 
     static String getBlockInfoText(Property property) {
         StringBuilder builder = new StringBuilder();
-        builder.append("Name: ").append(property.name).append("\n");
-        builder.append("Type: ").append(property.type).append("\n");
-        builder.append("Color group: ").append(property.color).append("\n");
+        builder.append(property.name).append(" | ").append(property.type).append(" | ").append(property.color).append("\n");
 
         if (property.type.equals("Estate")) {
-            builder.append("Price: $").append(property.price).append("\n");
-            builder.append("Base Rent: $").append(property.rent).append("\n");
-            builder.append("Rent if all same color owned: $").append(property.rent * 2).append("\n");
-            builder.append("House Cost: $").append(property.price / 2).append("\n");
-            builder.append("Rent with House: $").append(property.rent * 3).append("\n");
+            builder.append("Price: $").append(property.price).append(" | Rent: $").append(property.rent).append("\n");
+            builder.append("All color: $").append(property.rent * 2);
+            builder.append(" | House: $").append(property.price / 2);
+            builder.append(" | House rent: $").append(property.rent * 3).append("\n");
         } else if (property.type.equals("Tax")) {
-            builder.append("Tax Amount: $").append(property.price).append("\n");
+            builder.append("Tax: $").append(property.price).append("\n");
         } else if (property.type.equals("Go To Office")) {
             builder.append("Go to Mr. Primrose's Office!\n");
         } else if (property.type.equals("Event")) {
             builder.append("Event space.\n");
         } else {
-            builder.append("This block does not have property price or rent.\n");
+            builder.append("No property price or rent.\n");
         }
 
         if (property.owner != null) {
-            builder.append("Status: Owned by ").append(property.owner.name).append("\n");
+            builder.append("Owned by ").append(property.owner.name).append("\n");
         } else {
-            builder.append("Status: Unowned\n");
+            builder.append("Unowned\n");
         }
 
         return builder.toString();
