@@ -53,8 +53,8 @@ public class SMonopoly {
     static JTextArea logArea;
     static JTextArea boardInfoArea;
     static JLabel boardImageLabel;
-    static JLabel landingBannerLabel;  // banner shown when a player lands on a property
-    static int lastLandedTile = -1;    // tracks the most recently landed-on tile
+    static JLabel landingBannerLabel;  // show when a player lands on a property
+    static int lastLandedTile = -1;    // track recently landed-on tile
     static Clip bgmClip;
     static class Property {
         String name;
@@ -510,6 +510,7 @@ public class SMonopoly {
             player.money = player.money + PASS_GO_MONEY;
             addLog(player.name + " passed GO and collected $" + PASS_GO_MONEY + ".");
         }
+        
 
         addLog(player.name + " moved from " + board[oldPosition].name + " to " + board[player.position].name + ".");
     }
@@ -528,6 +529,7 @@ public class SMonopoly {
             addLog(player.name + " paid $" + property.price + " for " + property.name + ".");
         } else if (property.type.equals("Event")) {
             handleEvent(player);
+            
         } else if (property.type.equals("Go To Office")) {
             handleGoToOffice(player);
         } else if (property.name.equals("Mr. Primrose's Office")) {
@@ -919,14 +921,19 @@ public class SMonopoly {
         } else if (propertyName.equals("Sun Center")) {
             return "assets/suncenter.jpg";
         }
-
         return null;
     }
-
+    
+    
+    
+    
+    
+    
     static String getBlockInfoText(Property property) {
         StringBuilder builder = new StringBuilder();
+        
         builder.append(property.name).append(" | ").append(property.type).append(" | ").append(property.color).append("\n");
-
+        
         if (property.type.equals("Estate")) {
             builder.append("Price: $").append(property.price).append(" | Rent: $").append(property.rent).append("\n");
             builder.append("All color: $").append(property.rent * 2);
@@ -947,7 +954,7 @@ public class SMonopoly {
         } else {
             builder.append("Unowned\n");
         }
-
+        
         return builder.toString();
     }
 
