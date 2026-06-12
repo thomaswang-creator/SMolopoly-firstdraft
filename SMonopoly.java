@@ -823,7 +823,6 @@ public class SMonopoly {
             normalized = normalized.substring(("assets" + java.io.File.separator).length());
         }
         java.io.File file = new java.io.File(getAssetsBaseDir(), normalized);
-        System.out.println("assetPath: relative='" + relativePath + "' resolved='" + file.getAbsolutePath() + "' exists=" + file.exists());
         return file.getAbsolutePath();
     }
 
