@@ -13,7 +13,7 @@ public class SMonopoly {
     static final int PASS_GO_MONEY = 200;
     static final int MAX_ROUNDS = 30;
     static final int MAX_PLAYERS = 3;
-    static final String JAIL_SOUND = "assets/jail-sound-effect.wav";
+    static final String JAIL_SOUND = "jail-sound-effect.wav";
     static final String[] PLAYER_TOKEN_IMAGES = {
             "assets/player1-token.png",
             "assets/player2-token.png",
@@ -579,7 +579,7 @@ public class SMonopoly {
 
     static void playJailSound() {
         try {
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new java.io.File(JAIL_SOUND));
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new java.io.File(assetPath(JAIL_SOUND)));
             Clip clip = AudioSystem.getClip();
             clip.open(audioInput);
             audioInput.close();
@@ -596,7 +596,7 @@ public class SMonopoly {
     
     static void playBackgroundMusic() {
         try {
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new java.io.File("assets/02 Bidding War.wav"));
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new java.io.File(assetPath("02 Bidding War.wav")));
             bgmClip = AudioSystem.getClip();
             bgmClip.open(audioInput);
             bgmClip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -814,7 +814,42 @@ public class SMonopoly {
     }
 
     static String getTokenImagePath(int playerIndex) {
-        return new java.io.File(PLAYER_TOKEN_IMAGES[playerIndex]).toURI().toString();
+        return assetUri(PLAYER_TOKEN_IMAGES[playerIndex]);
+    }
+
+    static String assetPath(String relativePath) {
+        String normalized = relativePath.replace('/', java.io.File.separatorChar).replace('\\', java.io.File.separatorChar);
+        if (normalized.startsWith("assets" + java.io.File.separator)) {
+            normalized = normalized.substring(("assets" + java.io.File.separator).length());
+        }
+        java.io.File file = new java.io.File(getAssetsBaseDir(), normalized);
+        System.out.println("assetPath: relative='" + relativePath + "' resolved='" + file.getAbsolutePath() + "' exists=" + file.exists());
+        return file.getAbsolutePath();
+    }
+
+    static String assetUri(String relativePath) {
+        return new java.io.File(assetPath(relativePath)).toURI().toString();
+    }
+
+    static java.io.File getAssetsBaseDir() {
+        try {
+            java.io.File codeSource = new java.io.File(SMonopoly.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            java.io.File baseDir = codeSource.isFile() ? codeSource.getParentFile() : codeSource;
+            java.io.File dir = baseDir;
+            while (dir != null) {
+                java.io.File assetsDir = new java.io.File(dir, "assets");
+                if (assetsDir.exists()) {
+                    return assetsDir;
+                }
+                dir = dir.getParentFile();
+            }
+        } catch (Exception ignored) {
+        }
+        java.io.File cwdAssets = new java.io.File(System.getProperty("user.dir"), "assets");
+        if (cwdAssets.exists()) {
+            return cwdAssets;
+        }
+        return new java.io.File("assets");
     }
 
     static void highlightLandedTile(int tileIndex, Player player) {
@@ -848,7 +883,7 @@ public class SMonopoly {
             return;
         }
 
-        ImageIcon originalIcon = new ImageIcon(new java.io.File(imagePath).getAbsolutePath());
+        ImageIcon originalIcon = new ImageIcon(assetPath(imagePath));
         int imageWidth = originalIcon.getIconWidth();
         int imageHeight = originalIcon.getIconHeight();
 
@@ -911,7 +946,7 @@ public class SMonopoly {
         } else if (propertyName.equals("Events") && tileIndex == 26) {
             return "assets/Event.jpeg";
         } else if (propertyName.equals("Service Day")) {
-            return "assets/Service Day.jpeg";
+            return "assets/Service Day.jpg";
         } else if (propertyName.equals("Howard Cafe")) {
             return "assets/Howards.jpg";
         } else if (propertyName.equals("Sun Center's Toilet")) {
